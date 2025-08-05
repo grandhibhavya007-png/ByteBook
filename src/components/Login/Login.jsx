@@ -1,79 +1,47 @@
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { loginStyles } from "../../assets/dummystyles";
+import { useState, useEffect } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react"
+import {loginStyles} from "../../assets/dummystyles"
 
 const Login = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState({ visible: false, message: "", type: "" });
+  const navigate = useNavigate()
+  const [formData, setFormData] = useState({ email: "", password: "" })
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toast, setToast] = useState({ visible: false, message: "", type: "" })
 
   useEffect(() => {
     if (toast.visible) {
-      const timer = setTimeout(
-        () => setToast({ ...toast, visible: false }),
-        3000
-      );
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setToast({ ...toast, visible: false }), 3000)
+      return () => clearTimeout(timer)
     }
-  }, [toast]);
+  }, [toast])
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { email, password } = formData;
-
-    if (!email.trim() || !password.trim()) {
-      setToast({
-        visible: true,
-        message: "All fields are required",
-        type: "error",
-      });
-      return;
+    e.preventDefault()
+    if (!formData.email || !formData.password) {
+      setToast({ visible: true, message: "All fields are required", type: "error" })
+      return
     }
 
-    setIsSubmitting(true);
-
+    setIsSubmitting(true)
     try {
-      const res = await fetch("http://localhost:4000/api/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Invalid credentials");
-      }
-
-      // Save the token to localStorage
-      localStorage.setItem("authToken", data.token);
-
-      setToast({ visible: true, message: "Login successful", type: "success" });
-
-      // Redirect after short delay
-      setTimeout(() => navigate("/"), 2000);
-    } catch (err) {
-      setToast({ visible: true, message: err.message, type: "error" });
+      localStorage.setItem("authToken", "demo-token")
+      setToast({ visible: true, message: "Login successful", type: "success" })
+      setTimeout(() => navigate("/"), 2000)
+    } catch {
+      setToast({ visible: true, message: "Login failed", type: "error" })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleSignOut = () => {
-    localStorage.removeItem("authToken");
-    setToast({
-      visible: true,
-      message: "Signed out successfully",
-      type: "success",
-    });
-  };
+    localStorage.removeItem("authToken")
+    setToast({ visible: true, message: "Signed out successfully", type: "success" })
+  }
 
-  const isLoggedIn = localStorage.getItem("authToken");
+  const isLoggedIn = localStorage.getItem("authToken")
 
   return (
     <div className={loginStyles.container}>
@@ -94,9 +62,7 @@ const Login = () => {
                 <Lock className="h-6 w-6 text-[#43C6AC]" />
               </div>
               <h1 className={loginStyles.heading}>Sign In</h1>
-              <p className={loginStyles.subheading}>
-                Access your BookShell account
-              </p>
+              <p className={loginStyles.subheading}>Access your BookShell account</p>
             </div>
 
             <form onSubmit={handleSubmit} className={loginStyles.form}>
@@ -109,9 +75,7 @@ const Login = () => {
                     placeholder="email@example.com"
                     className={loginStyles.input}
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
               </div>
@@ -125,20 +89,14 @@ const Login = () => {
                     placeholder="••••••••"
                     className={loginStyles.passwordInput}
                     value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className={loginStyles.togglePassword}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
@@ -181,7 +139,7 @@ const Login = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

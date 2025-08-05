@@ -1,42 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, CreditCard, DollarSign, MapPin, ShoppingCart, CheckCircle } from 'lucide-react';
 import { useCart } from '../../CartContext/CartContext';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import axios from 'axios';
-
-// Base URLs for API and image serving
-const API_BASE = "http://localhost:4000/api";
-const IMG_BASE = API_BASE.replace("/api", "");
 
 const Checkout = () => {
-  const { cart, clearCart } = useCart();
+  const { cart, dispatch } = useCart();
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', address: '',
     city: '', state: '', zip: '', paymentMethod: 'cod'
   });
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState(null);
-  // capture total before clearing
-  const [orderTotal, setOrderTotal] = useState(0);
-
-  // State to hold map of book IDs to image paths
-  const [images, setImages] = useState({});
-
-  // Fetch book images on mount
-  useEffect(() => {
-    axios.get(`${API_BASE}/book`)
-      .then(({ data }) => {
-        const books = Array.isArray(data) ? data : data.books || [];
-        const map = {};
-        books.forEach(b => {
-          if (b._id && b.image) map[b._id] = b.image;
-        });
-        setImages(map);
-      })
-      .catch(err => console.error("Could not load book images:", err));
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,82 +20,20 @@ const Checkout = () => {
   };
 
   const calculateTotal = () => cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  
   const subtotal = calculateTotal();
   const tax = subtotal * 0.05;
   const total = subtotal + tax;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) throw new Error('Not authenticated');
-
-// After (pick whichever property holds the book ID):
-const items = cart.items.map(item => ({
-  id:       item.id || item._id,    // <-- make sure this is the Mongo _id of the Book
-  name:     item.title,
-  price:    item.price,
-  quantity: item.quantity || 1,
-}));
-
-
-      const paymentMethodLabel = formData.paymentMethod === 'cod'
-        ? 'Cash on Delivery'
-        : 'Online Payment';
-      const paymentStatus = formData.paymentMethod === 'online'
-        ? 'Paid'
-        : 'Pending';
-
-      const payload = {
-        customer: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          address: {
-            street: formData.address,
-            city: formData.city,
-            state: formData.state,
-            zip: formData.zip,
-          },
-        },
-        items,
-        paymentMethod: paymentMethodLabel,
-        paymentStatus,
-        notes: formData.notes || '',
-        deliveryDate: formData.deliveryDate || '',
-      };
-
-      const { data } = await axios.post(`${API_BASE}/order`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // capture total before clearing
-      setOrderTotal(total);
-
-      // 🔥 CLEAR SERVER CART
-      await axios.delete(`${API_BASE}/cart/clear`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      // 🔥 CLEAR LOCAL CART
-      clearCart();
-
-      if (formData.paymentMethod === 'online' && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-        return;
-      }
-
-      setOrderId(data.order?.orderId || null);
-      setOrderPlaced(true);
-
-    } catch (err) {
-      console.error('Order submission error:', err);
-    }
+    const newOrderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    setOrderId(newOrderId);
+    setOrderPlaced(true);
+    dispatch({ type: 'CLEAR_CART' });
   };
 
-
- if (orderPlaced) {
+  if (orderPlaced) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#43C6AC] to-[#F8FFAE] py-20">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -133,26 +47,20 @@ const items = cart.items.map(item => ({
             <p className="text-gray-600 text-lg mb-8">
               Thank you for your purchase. Your order has been placed successfully.
             </p>
-
+            
             <div className="bg-gradient-to-r from-[#43C6AC]/10 to-[#F8FFAE]/10 rounded-xl p-6 mb-8 max-w-lg mx-auto">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-700">Order ID:</span>
-                <span className="font-bold text-gray-900">{orderId}</span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-gray-700">Payment Method:</span>
-                <span className="font-bold text-gray-900">
-                  {formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">Total Amount:</span>
-                <span className="text-xl font-bold text-[#1A237E]">
-                  ₹{orderTotal.toFixed(2)}
-                </span>
-              </div>
+              {[
+                { label: 'Order ID:', value: orderId },
+                { label: 'Payment Method:', value: formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment' },
+                { label: 'Total Amount:', value: `₹${subtotal.toFixed(2)}`, className: 'text-xl font-bold text-[#1A237E]' }
+              ].map((item, i) => (
+                <div key={i} className={`flex justify-between items-center ${i < 2 ? 'mb-4' : ''}`}>
+                  <span className="text-gray-700">{item.label}</span>
+                  <span className={item.className || 'font-bold text-gray-900'}>{item.value}</span>
+                </div>
+              ))}
             </div>
-
+            
             <p className="text-gray-600 mb-8">
               We've sent a confirmation email to <span className="font-medium">{formData.email}</span>. 
               Your order will be shipped to:
@@ -162,7 +70,7 @@ const items = cart.items.map(item => ({
               <p className="text-gray-600">{formData.address}</p>
               <p className="text-gray-600">{formData.city}, {formData.state} {formData.zip}</p>
             </div>
-
+            
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/books" className="px-6 py-3 bg-gradient-to-r from-[#1A237E] to-[#43C6AC] text-white rounded-lg font-medium hover:opacity-90">
                 Continue Shopping
@@ -315,15 +223,7 @@ const items = cart.items.map(item => ({
                   {cart.items.length > 0 ? (
                     cart.items.map(item => (
                       <div key={item.id} className="flex items-center">
-                          <img
-                          src={
-                            images[item.id]
-                              ? `${IMG_BASE}${images[item.id]}`
-                              : "/placeholder.png"
-                          }
-                          alt={item.title}
-                          className="w-16 h-16 object-cover rounded-xl mr-4"
-                        />
+                        <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mr-4" />
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900">{item.title}</h4>
                           <p className="text-gray-600 text-sm">by {item.author}</p>

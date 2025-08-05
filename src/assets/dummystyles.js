@@ -7,7 +7,7 @@ export const navbarStyles = {
       scrolled ? "shadow-md py-2" : "py-4"
     }`,
 
-  container: "container mx-auto px-4 md:px-4 md:text-xs",
+  container: "container mx-auto px-4 md:px-6",
   logoContainer: "flex items-center",
   logoGradient: "absolute -inset-3 rounded-full opacity-0 blur-xl group-hover:opacity-30 transition-opacity bg-gradient-to-r from-[#43C6AC] to-[#F8FFAE]",
   logoImage: "h-8 w-8 rounded-full z-10",
@@ -87,7 +87,7 @@ export const navbarStyles = {
 //banner
 
 export const container =
-  "min-h-screen flex items-center justify-center px-4 pt-20 md:pt-29 pb-12 relative bg-gradient-to-br from-[#43C6AC]/90 to-[#2B5876]/90";
+  "min-h-screen flex items-center justify-center px-4 pt-20 md:pt-24 pb-12 relative bg-gradient-to-br from-[#43C6AC]/90 to-[#2B5876]/90";
 
 export const glassBox =
   "backdrop-blur-2xl bg-white/95 rounded-xl md:rounded-[2rem] shadow-lg md:shadow-2xl max-w-7xl w-full mx-4 p-6 md:p-8 lg:p-12 relative overflow-hidden";

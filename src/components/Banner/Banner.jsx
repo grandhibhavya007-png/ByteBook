@@ -1,33 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
-import img from "../../assets/banner1.png";
+import img from '../../assets/banner1.png';
 
-import { words } from "../../assets/dummydata";
+import {words} from '../../assets/dummydata'
 import {
-  container,
-  glassBox,
-  geometricOverlay,
-  wordWrapper,
-  wordClass,
-  headerText,
-  subHeader,
-  paragraphText,
-  formContainer,
-  inputWrapper,
-  inputField,
-  searchButton,
-  statsContainer,
-  statBox,
-  statNumber,
-  statLabel,
-  imageSection,
-  imageWrapper,
-  imageStyle,
-  overlayEffect,
-  scrollTextSection,
-  scrollText,
-} from "../../assets/dummystyles";
+  container,  glassBox,  geometricOverlay,  wordWrapper,  wordClass,  headerText,  subHeader,  paragraphText,  formContainer,  inputWrapper,  inputField, searchButton,  statsContainer,  statBox,  statNumber,  statLabel,  imageSection,  imageWrapper,  imageStyle,  overlayEffect,  scrollTextSection,  scrollText} from "../../assets/dummystyles";
 
 const Banner = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,19 +19,11 @@ const Banner = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    // Optional: fetch to test the API (can remove if not needed)
-    try {
-      await fetch(`/api/book?search=${encodeURIComponent(searchQuery.trim())}`);
-    } catch (err) {
-      console.error("Search failed:", err);
+    if (searchQuery.trim()) {
+      navigate(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
     }
-
-    // ✅ Redirect to books page with search query
-    navigate(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
   };
 
   return (
@@ -73,20 +43,19 @@ const Banner = () => {
                   Mindful
                 </span>
                 <br />
-                <span className={subHeader}>Reading Experience</span>
+                <span className={subHeader}>
+                  Reading Experience
+                </span>
               </h1>
               <p className={paragraphText}>
-                Curated knowledge journeys that challenge perceptions and
-                inspire growth. Discover transformative content crafted for the
-                modern intellect.
+                Curated knowledge journeys that challenge perceptions and inspire growth.
+                Discover transformative content crafted for the modern intellect.
               </p>
             </div>
 
             {/* Animated Word Rotator */}
             <div className="flex items-center gap-3">
-              <span className="text-gray-600 text-base md:text-lg font-medium">
-                Explore
-              </span>
+              <span className="text-gray-600 text-base md:text-lg font-medium">Explore</span>
               <div className={wordWrapper}>
                 {words.map((word, index) => (
                   <span
@@ -131,7 +100,7 @@ const Banner = () => {
               {[
                 { number: "50k+", label: "Titles" },
                 { number: "1.2M", label: "Readers" },
-                { number: "240+", label: "Topics" },
+                { number: "240+", label: "Topics" }
               ].map((stat, i) => (
                 <div key={i} className={statBox}>
                   <div className={statNumber}>{stat.number}</div>
@@ -144,11 +113,7 @@ const Banner = () => {
           {/* Image Section */}
           <div className={imageSection}>
             <div className={imageWrapper}>
-              <img
-                src={img}
-                alt="Modern reading concept"
-                className={imageStyle}
-              />
+              <img src={img} alt="Modern reading concept" className={imageStyle} />
               <div className={overlayEffect} />
             </div>
           </div>
@@ -157,8 +122,7 @@ const Banner = () => {
         {/* Footer Text */}
         <div className={scrollTextSection}>
           <div className={scrollText}>
-            Curated Collections • Award-Winning Authors • Critical Analyses •
-            Cultural Perspectives
+            Curated Collections • Award-Winning Authors • Critical Analyses • Cultural Perspectives
           </div>
         </div>
       </div>

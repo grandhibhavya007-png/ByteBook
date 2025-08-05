@@ -1,48 +1,18 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { ShoppingCart, ArrowRight, Plus, Minus, Star } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useCart } from "../../CartContext/CartContext";
-import { homeBooksStyles as styles } from "../../assets/dummystyles";
+import { ShoppingCart, ArrowRight, Plus, Minus, Star } from "lucide-react"
+import { Link } from "react-router-dom"
+import { useCart } from "../../CartContext/CartContext"
 
-const API_BASE = "http://localhost:4000";
+import { homeBooksStyles as styles } from "../../assets/dummystyles"
+import { hbbooks } from '../../assets/dummydata'
 
 const HomeBooks = () => {
-  const { cart, addToCart, updateCartItem } = useCart();
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { cart, dispatch } = useCart()
 
-  // Helpers now ignore source, unified by id
-  const inCart = (id) => cart.items.some((item) => item.id === id);
-  const getQty = (id) => cart.items.find((item) => item.id === id)?.quantity || 0;
+  const inCart = (id) => cart.items.find((item) => item.id === id)
 
-  // Fetch books once
-  useEffect(() => {
-    const fetchBooks = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${API_BASE}/api/book`);
-        const list = Array.isArray(res.data) ? res.data : res.data.books || [];
-        setBooks(list);
-      } catch (err) {
-        setError(err.message || "Failed to load books");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBooks();
-  }, []);
-
-  const handleAdd = (book) => {
-    addToCart({ id: book._id, title: book.title, price: book.price, quantity: 1 });
-  };
-
-  const handleInc = (id) => updateCartItem({ id, quantity: getQty(id) + 1 });
-  const handleDec = (id) => updateCartItem({ id, quantity: getQty(id) - 1 });
-
-  if (loading) return <div className={styles.loading}>Loading favorites...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
+  const handleAdd = (book) => dispatch({ type: "ADD_ITEM", payload: { ...book, quantity: 1 } })
+  const handleInc = (id) => dispatch({ type: "INCREMENT", payload: { id } })
+  const handleDec = (id) => dispatch({ type: "DECREMENT", payload: { id } })
 
   return (
     <div className={styles.section}>
@@ -54,44 +24,35 @@ const HomeBooks = () => {
           </div>
 
           <div className={styles.grid}>
-            {books.map((book) => {
-              const itemInCart = inCart(book._id);
+            {hbbooks.map((book) => {
+              const item = inCart(book.id)
               return (
-                <div key={book._id} className={styles.bookCard}>
+                <div key={book.id} className={styles.bookCard}>
                   <div className={styles.imageWrapper}>
-                    <img
-                      src={
-                        book.image.startsWith('http')
-                          ? book.image
-                          : `${API_BASE}${book.image}`
-                      }
-                      alt={book.title}
-                      className={styles.image}
-                    />
+                    <img src={book.image} alt={book.title} className={styles.image} />
+
                     <div className={styles.rating}>
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(book.rating || 0)
-                              ? "text-[#43C6AC] fill-[#43C6AC]"
-                              : "text-gray-300"
-                          }`} />
+                          className={`h-4 w-4 ${i < book.rating ? "text-[#43C6AC] fill-[#43C6AC]" : "text-gray-300"}`}
+                        />
                       ))}
                     </div>
                   </div>
 
                   <h3 className={styles.title}>{book.title}</h3>
-                  <p className={styles.author}>{book.author}</p>
-                  <span className={styles.actualPrice}>₹{book.price.toFixed(2)}</span>
+                  <p className={styles.author}>{book.author} best author in this week</p>
 
-                  {itemInCart ? (
+                  <span className={styles.actualPrice}>₹{book.price}</span>
+
+                  {item ? (
                     <div className={styles.qtyBox}>
-                      <button onClick={() => handleDec(book._id)} className={styles.qtyBtn}>
+                      <button onClick={() => handleDec(book.id)} className={styles.qtyBtn}>
                         <Minus className="h-5 w-5" />
                       </button>
-                      <span className="text-gray-700">{getQty(book._id)}</span>
-                      <button onClick={() => handleInc(book._id)} className={styles.qtyBtn}>
+                      <span className="text-gray-700">{item.quantity}</span>
+                      <button onClick={() => handleInc(book.id)} className={styles.qtyBtn}>
                         <Plus className="h-5 w-5" />
                       </button>
                     </div>
@@ -102,7 +63,7 @@ const HomeBooks = () => {
                     </button>
                   )}
                 </div>
-              );
+              )
             })}
           </div>
 
@@ -115,7 +76,7 @@ const HomeBooks = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomeBooks;
+export default HomeBooks

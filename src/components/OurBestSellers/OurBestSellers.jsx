@@ -1,62 +1,23 @@
-/* CartContext.jsx (unchanged) */
-// ... [CartContext code remains unchanged]
+import { useRef } from "react"
+import { useCart } from "../../CartContext/CartContext"
+import { ShoppingCart, Plus, Minus, Star, ChevronLeft, ChevronRight } from "lucide-react"
 
-/* OurBestSellers.jsx */
-
-import React, { useRef, useState, useEffect } from "react";
-import axios from "axios";
-import { useCart } from "../../CartContext/CartContext";
-import { ShoppingCart, Plus, Minus, Star, ChevronLeft, ChevronRight } from "lucide-react";
-import { ourBestSellersStyles as styles } from "../../assets/dummystyles";
-
-// Base URL of your backend
-const API_BASE = "http://localhost:4000";
+import { ourBestSellersStyles as styles } from "../../assets/dummystyles"
+import { bgColors,obsbooks } from '../../assets/dummydata'
 
 const OurBestSellers = () => {
-  const { cart, addToCart, updateCartItem } = useCart();
-  const scrollRef = useRef(null);
+  const { cart, dispatch } = useCart()
+  const scrollRef = useRef(null)
 
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Helpers to check cart state
-  const inCart = (id) => cart.items.some((item) => item.id === id);
-  const getQty = (id) => cart.items.find((item) => item.id === id)?.quantity || 0;
+  const inCart = (id) => cart?.items?.some(item => item.id === id)
+  const getQty = (id) => cart?.items?.find(item => item.id === id)?.quantity || 0
+  const handleAdd = (book) => dispatch({ type: "ADD_ITEM", payload: { ...book, quantity: 1 } })
+  const handleInc = (id) => dispatch({ type: "INCREMENT", payload: { id } })
+  const handleDec = (id) => dispatch({ type: "DECREMENT", payload: { id } })
 
-  // Fetch best-sellers from backend once
-  useEffect(() => {
-    const fetchBooks = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${API_BASE}/api/book`);
-        setBooks(Array.isArray(res.data) ? res.data : res.data.books || []);
-      } catch (err) {
-        console.error('Error fetching best sellers:', err);
-        setError(err.message || 'Failed to load books');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBooks();
-  }, []);
-
-  // Add to cart
-  const handleAdd = (book) => {
-    addToCart({ id: book._id, title: book.title, price: book.price, quantity: 1 });
-  };
-
-  // Increment/decrement
-  const handleInc = (id) => updateCartItem({ id, quantity: getQty(id) + 1 });
-  const handleDec = (id) => updateCartItem({ id, quantity: getQty(id) - 1 });
-
-  // Carousel scroll
-  const scrollLeft = () => scrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' });
-  const scrollRight = () => scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' });
-
-  if (loading) return <div className={styles.loading}>Loading best sellers...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
+  const scrollLeft = () => scrollRef.current.scrollBy({ left: -400, behavior: "smooth" })
+  const scrollRight = () => scrollRef.current.scrollBy({ left: 400, behavior: "smooth" })
 
   return (
     <section className={styles.section}>
@@ -83,37 +44,37 @@ const OurBestSellers = () => {
           </div>
         </div>
 
-        {/* Book Cards Carousel */}
+        {/* obsbooks */}
         <div ref={scrollRef} className={styles.scrollContainer}>
-          {books.map((book) => (
-            <div key={book._id} className={styles.card()}>
+          {obsbooks.map((book, index) => (
+            <div key={book.id} className={styles.card(bgColors[index % bgColors.length])}>
               <div className={styles.cardInner}>
                 <div className="space-y-3 md:space-y-4">
                   <div className={styles.stars}>
-                    {[...Array(Math.floor(book.rating || 0))].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 md:h-5 md:w-5 text-amber-400 fill-amber-400"
-                      />
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 md:h-5 md:w-5 text-amber-400 fill-amber-400" />
                     ))}
                   </div>
                   <div className={styles.bookInfo}>
                     <h2 className={styles.bookTitle}>{book.title}</h2>
                     <p className={styles.bookAuthor}>{book.author}</p>
                   </div>
-                  <p className={styles.bookDesc}>{book.description}</p>
+                  <p className={styles.bookDesc}>
+                    Jane McLane's latest masterpiece challenges conventional storytelling. Explore transformative 
+                    narratives that...
+                  </p>
                 </div>
 
                 <div className={styles.cartControls}>
                   <div className={styles.priceQtyWrapper}>
                     <span className={styles.price}>₹{book.price.toFixed(2)}</span>
-                    {inCart(book._id) ? (
+                    {inCart(book.id) ? (
                       <div className={styles.qtyWrapper}>
-                        <button onClick={() => handleDec(book._id)} className={styles.qtyBtn}>
+                        <button onClick={() => handleDec(book.id)} className={styles.qtyBtn}>
                           <Minus size={18} />
                         </button>
-                        <span className={styles.qtyText}>{getQty(book._id)}</span>
-                        <button onClick={() => handleInc(book._id)} className={styles.qtyBtn}>
+                        <span className={styles.qtyText}>{getQty(book.id)}</span>
+                        <button onClick={() => handleInc(book.id)} className={styles.qtyBtn}>
                           <Plus size={18} />
                         </button>
                       </div>
@@ -126,18 +87,13 @@ const OurBestSellers = () => {
                   </div>
                 </div>
               </div>
-
-              <img
-                src={book.image.startsWith('http') ? book.image : `${API_BASE}${book.image}`}
-                alt={book.title}
-                className={styles.bookImage}
-              />
+              <img src={book.image} alt={book.title} className={styles.bookImage} />
             </div>
           ))}
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default OurBestSellers;
+export default OurBestSellers

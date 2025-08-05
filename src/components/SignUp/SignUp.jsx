@@ -4,11 +4,7 @@ import { Eye, EyeOff, ArrowLeft, User, Mail, Lock } from "lucide-react";
 import { Signup } from "../../assets/dummystyles";
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: "", type: "" });
   const navigate = useNavigate();
@@ -23,50 +19,24 @@ const SignUp = () => {
     }
   }, [toast, navigate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const { username, email, password } = formData;
-
     if (!username.trim() || !email.trim() || !password.trim()) {
-      setToast({
-        visible: true,
-        message: "All fields are required",
-        type: "error",
-      });
+      setToast({ visible: true, message: "All fields are required", type: "error" });
       return;
     }
 
     setToast({ visible: true, message: "Creating account...", type: "info" });
-
-    try {
-      const res = await fetch("http://localhost:4000/api/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
+    setTimeout(() => {
       setToast({ visible: true, message: "Account created!", type: "success" });
-    } catch (err) {
-      setToast({ visible: true, message: err.message, type: "error" });
-    }
+    }, 1500);
   };
 
   return (
     <div className={Signup.container}>
       {toast.visible && (
-        <div
-          className={`${Signup.toastBase} ${
-            toast.type === "success" ? Signup.toastSuccess : Signup.toastError
-          }`}
-        >
+        <div className={`${Signup.toastBase} ${toast.type === "success" ? Signup.toastSuccess : Signup.toastError}`}>
           {toast.message}
         </div>
       )}
@@ -96,9 +66,7 @@ const SignUp = () => {
                 placeholder="Enter username"
                 className={Signup.input}
                 value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               />
             </div>
           </div>
@@ -113,9 +81,7 @@ const SignUp = () => {
                 placeholder="email@example.com"
                 className={Signup.input}
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
           </div>
@@ -130,20 +96,14 @@ const SignUp = () => {
                 placeholder="••••••••"
                 className={Signup.passwordInput}
                 value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className={Signup.togglePassword}
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
@@ -154,7 +114,7 @@ const SignUp = () => {
         </form>
 
         <div className={Signup.footerText}>
-          Already have an account?{" "}
+          Already have an account?{' '}
           <Link to="/login" className={Signup.link}>
             Sign in
           </Link>

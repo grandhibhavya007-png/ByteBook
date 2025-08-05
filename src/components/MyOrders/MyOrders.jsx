@@ -1,143 +1,76 @@
-// File: src/pages/UserOrdersPage.jsx
-
-import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
-import {
-  ChevronDown,
-  ChevronUp,
-  Truck,
-  CreditCard,
-  Package,
-  CheckCircle,
-  Clock,
-  XCircle,
-  MapPin,
-  ArrowLeft,
-  X,
-  DollarSign,
-} from "lucide-react";
-import Navbar from "../Navbar/Navbar";
-import Footer from "../Footer/Footer";
-
-const API_BASE = "http://localhost:4000";
+import React, { useState, useMemo } from 'react';
+import { 
+  ChevronDown, ChevronUp, Truck, CreditCard, Package,
+  CheckCircle, Clock, XCircle, MapPin, ArrowLeft, X, DollarSign
+} from 'lucide-react';
+import Navbar from '../Navbar/Navbar';
+import Footer from '../Footer/Footer';
 
 const UserOrdersPage = () => {
-  // Replace your static array with fetched data:
-  const [orders, setOrders] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const [selectedOrder, setSelectedOrder] = useState(null);
-
-  // Status badge definitions (unchanged)
-  const statusOptions = [
-    {
-      value: "pending",
-      label: "Pending",
-      icon: Clock,
-      color: "bg-yellow-100 text-yellow-800",
-      iconColor: "text-yellow-500",
+  // Order data
+  const orders = [
+    { 
+      id: '#ORD-1001', date: 'Oct 15, 2023', amount: 1250, 
+      payment: 'online', status: 'delivered', address: '123 Main St, New York, NY 10001',
+      books: [
+        { title: 'The Silent Echo', category: 'Mystery', quantity: 1, price: 205 },
+        { title: 'Digital Fortress', category: 'Thriller', quantity: 1, price: 190 }
+      ]
     },
-    {
-      value: "processing",
-      label: "Processing",
-      icon: Package,
-      color: "bg-blue-100 text-blue-800",
-      iconColor: "text-blue-500",
-    },
-    {
-      value: "shipped",
-      label: "Shipped",
-      icon: Truck,
-      color: "bg-indigo-100 text-indigo-800",
-      iconColor: "text-indigo-500",
-    },
-    {
-      value: "delivered",
-      label: "Delivered",
-      icon: CheckCircle,
-      color: "bg-green-100 text-green-800",
-      iconColor: "text-green-500",
-    },
-    {
-      value: "cancelled",
-      label: "Cancelled",
-      icon: XCircle,
-      color: "bg-red-100 text-red-800",
-      iconColor: "text-red-500",
-    },
+    // Other orders...
   ];
 
-  // Fetch all orders on component mount
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const { data } = await axios.get(`${API_BASE}/api/order/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setOrders(data);
-        console.log("User Orders:", data);
-      } catch (err) {
-        console.error("Failed to load user orders:", err);
-      }
-    };
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-    fetchOrders();
-  }, []);
+  // Status options
+  const statusOptions = [
+    { value: 'pending', label: 'Pending', icon: Clock, color: 'bg-yellow-100 text-yellow-800', iconColor: 'text-yellow-500' },
+    { value: 'processing', label: 'Processing', icon: Package, color: 'bg-blue-100 text-blue-800', iconColor: 'text-blue-500' },
+    { value: 'shipped', label: 'Shipped', icon: Truck, color: 'bg-indigo-100 text-indigo-800', iconColor: 'text-indigo-500' },
+    { value: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'bg-green-100 text-green-800', iconColor: 'text-green-500' },
+    { value: 'cancelled', label: 'Cancelled', icon: XCircle, color: 'bg-red-100 text-red-800', iconColor: 'text-red-500' },
+  ];
 
-  // Sorting handler (unchanged)
+  // Sorting logic
   const handleSort = (key) => {
-    setSortConfig((prev) => ({
+    setSortConfig(prev => ({
       key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
 
-  // Apply sorting
+  // Memoized sorted orders
   const sortedOrders = useMemo(() => {
-    if (!sortConfig.key) return orders;
     return [...orders].sort((a, b) => {
-      let aVal = a[sortConfig.key],
-        bVal = b[sortConfig.key];
-      if (sortConfig.key === "placedAt") {
-        aVal = new Date(aVal);
-        bVal = new Date(bVal);
+      if (!sortConfig.key) return 0;
+      
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      
+      if (sortConfig.key === 'date') {
+        return sortConfig.direction === 'asc' 
+          ? new Date(a.date) - new Date(b.date) 
+          : new Date(b.date) - new Date(a.date);
       }
-      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-      return 0;
+      
+      return sortConfig.direction === 'asc' 
+        ? aVal > bVal ? 1 : -1 
+        : aVal < bVal ? 1 : -1;
     });
   }, [orders, sortConfig]);
 
-  // Status badge component (unchanged)
-  // Inside UserOrdersPage.jsx, replace your StatusBadge with this:
-
+  // Status badge component
   const StatusBadge = ({ status }) => {
-    // case-insensitive match:
-    const opt = statusOptions.find(
-      (o) => o.value.toLowerCase() === status.toLowerCase()
-    );
-    if (!opt) return null;
-    const Icon = opt.icon;
+    const option = statusOptions.find(opt => opt.value === status);
+    if (!option) return null;
+    const Icon = option.icon;
     return (
-      <div
-        className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${opt.color}`}
-      >
-        <Icon className={`w-4 h-4 ${opt.iconColor}`} />
-        <span>{opt.label}</span>
+      <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${option.color}`}>
+        <Icon className={`w-4 h-4 ${option.iconColor}`} />
+        <span>{option.label}</span>
       </div>
     );
-  };
-
-  // Fetch one order’s full details when “View Details” is clicked
-  const viewDetails = async (orderId) => {
-    try {
-      const { data } = await axios.get(`${API_BASE}/api/order/${orderId}`);
-      setSelectedOrder(data);
-    } catch (err) {
-      console.error("Failed to load order details:", err);
-    }
   };
 
   return (
@@ -147,11 +80,12 @@ const UserOrdersPage = () => {
         <div className="max-w-7xl mx-auto px-4">
           {/* Header */}
           <div className="flex items-center mb-8">
-            <button
+            <button 
               onClick={() => window.history.back()}
               className="flex items-center text-[#1A237E] hover:text-[#43C6AC] transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 mr-2" /> Back
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
             </button>
             <h1 className="text-3xl font-bold text-center flex-1 bg-white bg-clip-text text-transparent">
               My Orders
@@ -165,70 +99,62 @@ const UserOrdersPage = () => {
                 <thead className="bg-gradient-to-r from-[#1A237E] to-[#43C6AC] text-white">
                   <tr>
                     {[
-                      { key: "orderId", label: "Order ID" },
-                      { key: "date", label: "Date" },
-                      { key: "finalAmount", label: "Amount" },
-                      { key: null, label: "Payment" },
-                      { key: null, label: "Status" },
-                      { key: null, label: "Actions" },
+                      { key: 'id', label: 'Order ID' },
+                      { key: 'date', label: 'Date' },
+                      { key: 'amount', label: 'Amount' },
+                      { key: null, label: 'Payment' },
+                      { key: null, label: 'Status' },
+                      { key: null, label: 'Actions' }
                     ].map((col) => (
-                      <th
+                      <th 
                         key={col.key || col.label}
                         className="px-6 py-4 text-left cursor-pointer"
                         onClick={() => col.key && handleSort(col.key)}
                       >
                         <div className="flex items-center">
                           {col.label}
-                          {col.key &&
-                            sortConfig.key === col.key &&
-                            (sortConfig.direction === "asc" ? (
-                              <ChevronUp className="ml-1" />
-                            ) : (
-                              <ChevronDown className="ml-1" />
-                            ))}
+                          {col.key && sortConfig.key === col.key && (
+                            sortConfig.direction === 'asc' 
+                              ? <ChevronUp className="ml-1" /> 
+                              : <ChevronDown className="ml-1" />
+                          )}
                         </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {sortedOrders.map((o) => (
-                    <tr key={o._id} className="hover:bg-gray-50">
+                  {sortedOrders.map(order => (
+                    <tr key={order.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 font-medium text-gray-900">
-                        {o.orderId}
+                        {order.id}
                       </td>
                       <td className="px-6 py-4 text-gray-500">
-                        {new Date(o.placedAt).toLocaleDateString()}
+                        {order.date}
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-900">
-                        ₹{o.finalAmount.toFixed(2)}
+                        ₹{order.amount.toFixed(2)}
                       </td>
                       <td className="px-6 py-4">
-                        <div
-                          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                            o.paymentMethod === "Online Payment"
-                              ? "bg-purple-100 text-purple-800"
-                              : "bg-orange-100 text-orange-800"
-                          }`}
-                        >
-                          {o.paymentMethod === "Online Payment" ? (
+                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                          order.payment === 'online' 
+                            ? 'bg-purple-100 text-purple-800' 
+                            : 'bg-orange-100 text-orange-800'
+                        }`}>
+                          {order.payment === 'online' ? (
                             <CreditCard className="w-4 h-4" />
                           ) : (
                             <DollarSign className="w-4 h-4" />
                           )}
-                          <span>
-                            {o.paymentMethod === "Online Payment"
-                              ? "Online"
-                              : "COD"}
-                          </span>
+                          <span>{order.payment === 'online' ? 'Online' : 'COD'}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <StatusBadge status={o.orderStatus} />
+                        <StatusBadge status={order.status} />
                       </td>
                       <td className="px-6 py-4">
                         <button
-                          onClick={() => viewDetails(o._id)}
+                          onClick={() => setSelectedOrder(order)}
                           className="px-3 py-1.5 bg-gradient-to-r from-[#1A237E] to-[#43C6AC] text-white rounded-lg text-xs hover:opacity-90 transition-opacity"
                         >
                           View Details
@@ -245,12 +171,8 @@ const UserOrdersPage = () => {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                     <Package className="text-gray-400 w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">
-                    No orders found
-                  </h3>
-                  <p className="text-gray-500 text-sm">
-                    You haven't placed any orders yet
-                  </p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">No orders found</h3>
+                  <p className="text-gray-500 text-sm">You haven't placed any orders yet</p>
                 </div>
               )}
             </div>
@@ -264,11 +186,10 @@ const UserOrdersPage = () => {
               <div className="border-b p-6 flex justify-between items-center">
                 <div>
                   <h2 className="text-xl font-bold text-gray-800">
-                    Order Details: {selectedOrder.orderId}
+                    Order Details: {selectedOrder.id}
                   </h2>
                   <p className="text-gray-600 text-sm mt-1">
-                    Ordered on{" "}
-                    {new Date(selectedOrder.placedAt).toLocaleDateString()}
+                    Ordered on {selectedOrder.date}
                   </p>
                 </div>
                 <button
@@ -279,7 +200,6 @@ const UserOrdersPage = () => {
                 </button>
               </div>
 
-              {/* Modal body (unchanged) */}
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Shipping Information */}
                 <div className="border rounded-xl p-5">
@@ -289,87 +209,57 @@ const UserOrdersPage = () => {
                   </h3>
                   <div className="space-y-4">
                     <p className="text-gray-600">
-                      {selectedOrder.shippingAddress.street},{" "}
-                      {selectedOrder.shippingAddress.city},{" "}
-                      {selectedOrder.shippingAddress.state}{" "}
-                      {selectedOrder.shippingAddress.zipCode}
+                      {selectedOrder.address}
                     </p>
                     <div className="flex items-center">
                       <Truck className="w-5 h-5 text-gray-500 mr-3" />
                       <div>
                         <p className="font-medium">Standard Shipping</p>
-                        <p className="text-gray-600 text-sm">
-                          Estimated 3-5 business days
-                        </p>
+                        <p className="text-gray-600 text-sm">Estimated 3-5 business days</p>
                       </div>
                     </div>
                   </div>
                 </div>
-{/* Order Summary */}
-<div className="border rounded-xl p-5">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-    <Package className="w-5 h-5 mr-2 text-[#43C6AC]" />
-    Order Summary
-  </h3>
-  <div className="space-y-6">
-    {selectedOrder.books.map((book, i) => (
-      <div key={i} className="flex items-start space-x-4 border-b pb-4">
-        {/* Book image */}
-        <img
-          src={`${API_BASE}${book.image}`}
-          alt={book.title}
-          className="w-16 h-20 object-cover rounded"
-        />
 
-        {/* Book metadata */}
-        <div className="flex-1">
-          <p className="font-medium text-gray-900">{book.title}</p>
-          <p className="text-sm text-gray-600">Author: {book.author}</p>
-        </div>
-
-        {/* Quantity & price */}
-        <div className="text-right">
-          <p className="font-medium">Qty: {book.quantity}</p>
-          <p className="text-gray-500 text-sm">
-            ₹{book.price.toFixed(2)} each
-          </p>
-        </div>
-      </div>
-    ))}
-
-    {/* Totals (unchanged) */}
-    <div className="pt-4 space-y-2">
-      {[
-        {
-          label: "Subtotal:",
-          value: `₹${selectedOrder.totalAmount.toFixed(2)}`,
-        },
-        {
-          label: "Shipping:",
-          value: `₹${selectedOrder.shippingCharge.toFixed(2)}`,
-        },
-        {
-          label: "Tax (5%):",
-          value: `₹${selectedOrder.taxAmount.toFixed(2)}`,
-        },
-        {
-          label: "Total:",
-          value: `₹${selectedOrder.finalAmount.toFixed(2)}`,
-          className: "font-bold text-lg text-[#1A237E] pt-2 border-t",
-        },
-      ].map((item, idx) => (
-        <div
-          key={idx}
-          className={`flex justify-between ${item.className || ""}`}
-        >
-          <span className="text-gray-600">{item.label}</span>
-          <span>{item.value}</span>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-
+                {/* Order Summary */}
+                <div className="border rounded-xl p-5">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <Package className="w-5 h-5 mr-2 text-[#43C6AC]" />
+                    Order Summary
+                  </h3>
+                  <div className="space-y-4">
+                    {selectedOrder.books.map((book, i) => (
+                      <div key={i} className="flex justify-between items-center border-b pb-3">
+                        <div>
+                          <p className="font-medium">{book.title}</p>
+                          <p className="text-gray-600 text-sm">{book.category}</p>
+                        </div>
+                        <div className="text-right">
+                          <p>Qty: {book.quantity}</p>
+                          <p className="text-gray-500 text-sm">₹{book.price.toFixed(2)} each</p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <div className="pt-4 space-y-2">
+                      {[
+                        { label: 'Subtotal:', value: `₹${selectedOrder.amount.toFixed(2)}` },
+                        { label: 'Shipping:', value: 'Free', className: 'text-green-600' },
+                        { label: 'Tax (5%):', value: `₹${(selectedOrder.amount * 0.05).toFixed(2)}` },
+                        { 
+                          label: 'Total:', 
+                          value: `₹${(selectedOrder.amount * 1.05).toFixed(2)}`,
+                          className: 'font-bold text-lg text-[#1A237E] pt-2 border-t' 
+                        }
+                      ].map((item, i) => (
+                        <div key={i} className={`flex justify-between ${item.className || ''}`}>
+                          <span className="text-gray-600">{item.label}</span>
+                          <span>{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
                 {/* Payment Information */}
                 <div className="border rounded-xl p-5">
@@ -380,26 +270,12 @@ const UserOrdersPage = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Method:</span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          selectedOrder.paymentMethod === "Online Payment"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-orange-100 text-orange-800"
-                        }`}
-                      >
-                        {selectedOrder.paymentMethod}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Status:</span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          selectedOrder.paymentStatus === "Paid"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {selectedOrder.paymentStatus}
+                      <span className={`px-3 py-1 rounded-full text-xs ${
+                        selectedOrder.payment === 'online' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {selectedOrder.payment === 'online' ? 'Online Payment' : 'Cash on Delivery'}
                       </span>
                     </div>
                   </div>
@@ -412,8 +288,7 @@ const UserOrdersPage = () => {
                     Order Status
                   </h3>
                   <div className="flex items-center">
-                    {/* CORRECT FIELD NAME */}
-                    <StatusBadge status={selectedOrder.orderStatus} />
+                    <StatusBadge status={selectedOrder.status} />
                   </div>
                 </div>
               </div>
