@@ -37,7 +37,7 @@ const ContactUsPage = () => {
     if (!validateForm()) return
 
     // Build WhatsApp message
-    const whatsappNumber = '8299431275'
+    const whatsappNumber = '9494624073'
     const textLines = [
       `Name: ${formData.name}`,
       `Email: ${formData.email}`,
@@ -92,7 +92,7 @@ const ContactUsPage = () => {
                 <MapPin className="h-6 w-6 text-[#43C6AC]" />
                 <div>
                   <h3 className="font-medium text-gray-800 mb-1">Our Location</h3>
-                  <p className="text-gray-600">123 Book Street, Library City, LC 10001</p>
+                  <p className="text-gray-600">123 Book Street, Library City, India</p>
                 </div>
               </div>
 
@@ -100,7 +100,7 @@ const ContactUsPage = () => {
                 <Mail className="h-6 w-6 text-[#43C6AC]" />
                 <div>
                   <h3 className="font-medium text-gray-800 mb-1">Email Us</h3>
-                  <p className="text-gray-600">contact@bookshell.com</p>
+                  <p className="text-gray-600">contact@bytebook.com</p>
                 </div>
               </div>
 
@@ -108,7 +108,7 @@ const ContactUsPage = () => {
                 <Phone className="h-6 w-6 text-[#43C6AC]" />
                 <div>
                   <h3 className="font-medium text-gray-800 mb-1">Call Us</h3>
-                  <p className="text-gray-600">+1 (555) 123-4567</p>
+                  <p className="text-gray-600">+91 9494624073</p>
                 </div>
               </div>
             </div>

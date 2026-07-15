@@ -19,7 +19,7 @@ const HomeAbout = () => {
           <div className={s.imageWrapper}>
             <div className={s.imageGlow}></div>
             <div className={s.imageContainer}>
-              <img src={HomeAboutImage} alt="About BookShell" className={s.aboutImage} />
+              <img src={HomeAboutImage} alt="About ByteBook" className={s.aboutImage} />
             </div>
           </div>
 
@@ -30,7 +30,7 @@ const HomeAbout = () => {
             </div>
 
             <p className={s.aboutText}>
-              Founded with a passion for literature, BookShell has evolved into a sanctuary for book lovers. We curate
+              Founded with a passion for literature, ByteBook has evolved into a sanctuary for book lovers. We curate
               exceptional reading experiences, connecting readers with stories that inspire, educate, and transport them
               to new worlds.
             </p>

@@ -35,7 +35,7 @@ const Navbar = () => {
               <div className="relative flex items-center">
                 <img src={logo} alt="Logo" className={navbarStyles.logoImage} />
                 <div className="ml-2">
-                  <h1 className={navbarStyles.logoText}>BOOKSHELL</h1>
+                  <h1 className={navbarStyles.logoText}>BYTEBOOK</h1>
                   <div className={navbarStyles.logoUnderline} />
                 </div>
               </div>

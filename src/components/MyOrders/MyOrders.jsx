@@ -11,7 +11,7 @@ const UserOrdersPage = () => {
   const orders = [
     { 
       id: '#ORD-1001', date: 'Oct 15, 2023', amount: 1250, 
-      payment: 'online', status: 'delivered', address: '123 Main St, New York, NY 10001',
+      payment: 'online', status: 'delivered', address: 'Book Village, India, 560001',
       books: [
         { title: 'The Silent Echo', category: 'Mystery', quantity: 1, price: 205 },
         { title: 'Digital Fortress', category: 'Thriller', quantity: 1, price: 190 }

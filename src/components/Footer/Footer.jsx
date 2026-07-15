@@ -13,7 +13,7 @@ const Footer = () => {
           <div className={styles.logoBlock}>
             <Link to="/" className={styles.logoLink}>
               <img src={logo} alt="Logo" className={styles.logoImg} />
-              <h1 className={styles.logoText}>BOOKSHELL</h1>
+              <h1 className={styles.logoText}>BYTEBOOK</h1>
             </Link>
             <p className={styles.aboutText}>
               Your gateway to literary adventures. Discover, explore, and immerse yourself in the world of books.
@@ -70,15 +70,15 @@ const Footer = () => {
             <div className={styles.contactList}>
               <div className={styles.contactItem}>
                 <MapPin className={styles.contactIcon} />
-                <span>123 Literary Lane, Bookville, BK 12345</span>
+                <span>Agra, Book Village, India</span>
               </div>
               <div className={styles.contactRow}>
                 <Phone className={styles.contactIconInline} />
-                <span>+1 (234) 567-8901</span>
+                <span>+91 9494624073</span>
               </div>
               <div className={styles.contactRow}>
                 <Mail className={styles.contactIconInline} />
-                <span>contact@bookshell.com</span>
+                <span>contact@bytebook.com</span>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@ const Footer = () => {
 
         <div className={styles.copyrightWrap}>
           <p className={styles.copyrightText}>
-            &copy; {new Date().getFullYear()} BookShell. All rights reserved.
+            &copy; {new Date().getFullYear()} ByteBook . All rights reserved.
           </p>
           <a href="https://hexagondigitalservices.com"
             target="_blank"

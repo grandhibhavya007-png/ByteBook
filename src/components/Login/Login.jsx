@@ -62,7 +62,7 @@ const Login = () => {
                 <Lock className="h-6 w-6 text-[#43C6AC]" />
               </div>
               <h1 className={loginStyles.heading}>Sign In</h1>
-              <p className={loginStyles.subheading}>Access your BookShell account</p>
+              <p className={loginStyles.subheading}>Access your ByteBook account</p>
             </div>
 
             <form onSubmit={handleSubmit} className={loginStyles.form}>
